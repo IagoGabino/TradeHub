@@ -1,19 +1,25 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
   <router-view/>
 </template>
 
 <style lang="less">
+@import '@fortawesome/fontawesome-free/css/all.css';
+@import '@/assets/fonts/Gellix/stylesheet.less';
+
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Gellix', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  color: #25436e;
 }
+
+:root {
+  --primaryColor: #25436e;
+  --secondaryColor: #858586;
+}
+
 
 nav {
   padding: 30px;

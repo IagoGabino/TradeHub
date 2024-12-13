@@ -1,19 +1,22 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import LoginView from '../views/LoginView.vue'
+import ListView from '@/views/ListView.vue'
+import store from '@/store'
+import { nextTick } from 'vue'
 
 const routes = [
   {
     path: '/',
     name: 'home',
-    component: HomeView
+    component: ListView
   },
   {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+    path: "/login",
+    name: "login",
+    meta: {
+      title: "Login"
+    },
+    component: LoginView,
   }
 ]
 
@@ -21,5 +24,30 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 })
+
+router.afterEach((to) => {
+  nextTick(() => {
+    document.title = to.meta.title || "LibreX";
+  });
+});
+
+router.beforeEach((to, from, next) => {
+  if (!store.state?.user?.user.id) {
+    const user = localStorage.getItem("user");
+    if (user) {
+      // store.dispatch("setUser", JSON.parse(user));
+    } else {
+      // go to login page if user is not logged in
+      console.log(to.name);
+      if (to.name !== "login") {
+        window.alert("Você precisa estar logado para acessar esta página!");
+        next({ name: "login" });
+        return;
+      }
+    }
+  }
+
+  next();
+});
 
 export default router
