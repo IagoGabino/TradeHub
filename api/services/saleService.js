@@ -5,7 +5,7 @@ const NotFoundError = require('../utils/errors/NotFoundError');
 
 class SaleService {
     async purchase(body) {
-        const product = await Product.findByPk(body.idLivro);
+        const product = await Product.findByPk(body.idProduto);
         if (product.available) {
             product.available = false;
             await product.save();

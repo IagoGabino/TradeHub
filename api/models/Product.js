@@ -15,7 +15,7 @@ Product.init({
         type: DataTypes.STRING,
         allowNull: false
     },
-    description: {
+    descricao: {
         type: DataTypes.STRING,
         allowNull: false
     },
@@ -26,13 +26,6 @@ Product.init({
     foto: {
         type: DataTypes.STRING,
         allowNull: true
-    },
-    estadoConservacao: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        validate: {
-            isIn: [[1, 2, 3]]
-        }
     },
     available: {
         type: DataTypes.BOOLEAN,

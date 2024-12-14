@@ -26,7 +26,7 @@ Sale.init({
             key: 'id'
         }
     },
-    idProduct: {
+    idProduto: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
