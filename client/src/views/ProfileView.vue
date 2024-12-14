@@ -175,6 +175,8 @@ export default {
     ...mapGetters(['loggedInUser'])
   },
   mounted() {
+    console.log(this.loggedInUser)
+
     if (!this.loggedInUser?.photo) {
       this.userImage = this.userDefault
     }

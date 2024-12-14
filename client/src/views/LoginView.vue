@@ -125,6 +125,7 @@ export default {
                       photo: userData.foto,
                       cellphone: userData.celular,
                   }
+                  console.log(user)
                   this.setUser(user)
                   localStorage.setItem('user', JSON.stringify(user))
                   this.$toast.open({

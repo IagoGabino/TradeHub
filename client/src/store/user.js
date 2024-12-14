@@ -14,6 +14,7 @@ export default {
         },
         setUserPhoto(state, payload) {
             state.user.photo = payload
+            localStorage.setItem('user', JSON.stringify(state.user))
         },
         doLogout(state) {
             state.user = {

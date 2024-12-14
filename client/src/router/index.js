@@ -6,6 +6,7 @@ import store from '@/store'
 import LoginView from '../views/LoginView.vue'
 import ListView from '@/views/ListView.vue'
 import ProfileView from "@/views/ProfileView.vue";
+import ProductView from '@/views/ProductView.vue'
 
 const routes = [
   {
@@ -28,7 +29,15 @@ const routes = [
       title: "Profile"
     },
     component: ProfileView,
-  }
+  },
+  {
+    path: "/product/:productId",
+    name: "product",
+    meta: {
+      title: "Product"
+    },
+    component: ProductView
+  },
 ]
 
 const router = createRouter({

@@ -200,14 +200,21 @@ export default {
   font-size: 16px;
   font-weight: 600;
   font-family: Gellix;
-  margin-top: 0;
+  margin: 0;
+}
+
+.description {
+  font-size: 14px;
+  font-weight: 400;
+  margin-top: 10px;
+  color: #333;
 }
 
 .price {
   font-size: 18px;
   color: var(--primaryColor);
   font-weight: 600;
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
 i{

@@ -11,12 +11,7 @@
           <img :src="item.image" alt="prod" />
         </div>
         <p>{{ item.name }}</p>
-        <p>{{ item.author }}</p>
-
-        <div class="type">
-          <div v-if="item.sale === 0 " class="sale">Venda</div>
-          <div v-else-if="item.sale === 1 " class="purchase">Compra</div>            
-        </div>
+        <p>{{ fixLength(item.description) }}</p>
 
          <div class="price">
           <div v-if="item.price === 0 "> <i class="fa-solid fa-hand-holding-heart" style="color: black; font-size: 25px;"></i></div>
@@ -56,12 +51,8 @@ export default {
               name: 'name'
           },
           {
-              display: 'Autor',
-              name: 'author'
-          },
-          {
-              display: 'Tipo',
-              name: 'type'
+              display: 'Descrição',
+              name: 'description'
           },
           {
               display: 'Preço',
@@ -80,20 +71,24 @@ export default {
          return value.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })
     },
     async augmentTransaction(transaction) {
-      const prod = await getProduct(transaction.idProduct);
+      console.log('augmentTransaction', transaction);
+      const prod = await getProduct(transaction.idProduto);
       if (!prod) {
         console.error('Produto não encontrado para a transação: ', transaction);
         return; // Se o produto não for encontrado, encerre a função aqui.
       }
       console.log(prod)
-      transaction.name = prod.data.titulo;
-      transaction.author = prod.data.autores;
+      transaction.name = prod.data.nome;
+      transaction.description = prod.data.descricao;
       transaction.price = prod.data.preco;
       
         const photoLink = prod.data.foto.replace(/\\/g, '/').replace('uploads', 'uploads/');
         transaction.image = 'http://localhost:3000/' + photoLink;
       
-  }
+    },
+    fixLength: function (text) {
+          return text.length > 50 ? text.substr(0, 50) + '...' : text
+    }
   },
   computed: {
     ...mapGetters(['loggedInUser']),
@@ -122,7 +117,7 @@ export default {
 .user-history {
   .list-header-vendor {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 10px;
       align-items: center;
       margin-top: 20px;
@@ -148,7 +143,7 @@ export default {
 
   .history-item {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 10px;
     align-items: center;
     margin-top: 20px;
