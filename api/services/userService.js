@@ -7,8 +7,8 @@ const PermissionError = require('../utils/errors/PermissionError.js');
 const NotFoundError = require('../utils/errors/NotFoundError');
 const path = require('path')
 
-class UsersService {
-    async create(body){
+class UserService {
+    async create(body) {
         body.senha = await encryptPassword(body.senha);
         const { name, email, ...otherDetails } = body;
         const user = await User.create({
@@ -20,7 +20,7 @@ class UsersService {
         return user;
     }
 
-    async updatePassword(body){
+    async updatePassword(body) {
         const user = await User.findByPk(body.id);
         if (user) {
             const matchingPassword = await bcrypt.compare(body.atual, user.senha);
@@ -34,12 +34,12 @@ class UsersService {
         }
     }
 
-    async findById(id){
+    async findById(id) {
         const user = await User.findByPk(id);
         return user;
     }
 
-    async getPhoto(id){
+    async getPhoto(id) {
         const user = await User.findByPk(id);
         if (user && user.foto) {
             const photoPath = path.join(user.foto);
@@ -49,7 +49,7 @@ class UsersService {
         }
     }
 
-    async getAllProducts(id){
+    async getAllProducts(id) {
         const userId = id;
         const user = await User.findByPk(userId);
 
@@ -58,8 +58,10 @@ class UsersService {
         }
 
         const products = await Product.findAll({
-            where: { idVendedor: userId,
-                    available: true }
+            where: {
+                idVendedor: userId,
+                available: true
+            }
         });
 
         if (products.length === 0) {
@@ -69,7 +71,7 @@ class UsersService {
         return products;
     }
 
-    async update(id, body){
+    async update(id, body) {
         const user = await User.findByPk(id);
         if (user) {
             if (body.senha) {
@@ -83,7 +85,7 @@ class UsersService {
         return user;
     }
 
-    async updatePhoto(id, fotoPath){
+    async updatePhoto(id, fotoPath) {
         const user = await User.findByPk(id);
         if (user) {
             await user.update({ foto: fotoPath });
@@ -95,4 +97,4 @@ class UsersService {
 
 }
 
-module.exports = new UsersService;
+module.exports = new UserService;

@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const userRoutes = require('../routes/users');
-const bookRoutes = require('../routes/books');
+const productRoutes = require('../routes/products');
 const saleRoutes = require('../routes/sales');
 const cors = require('cors');
 
@@ -23,7 +23,7 @@ app.use(express.urlencoded({
 
 
 app.use('/users', userRoutes)
-app.use('/books', bookRoutes)
+app.use('/products', productRoutes)
 app.use('/sales', saleRoutes)
 
 app.use('/uploads', express.static('uploads'));
