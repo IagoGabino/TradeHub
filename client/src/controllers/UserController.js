@@ -23,4 +23,4 @@ const register = async (nome, email, celular, senha) => {
     return response
 }
 
-export { login, getUser, logout, updatePassword, register, updatePhoto }
+export { login, getUser, logout, register }

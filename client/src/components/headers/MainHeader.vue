@@ -4,20 +4,14 @@
 
 
       <div class="login-container" @mouseover="showDropdown" @mouseleave="hideDropdown">
-          <div class="user-icon">
-              <img :src="userPhoto" alt="User icon" />
-          </div>
-
-          <!-- <div class="login">
-              <div class="logged" v-if="loggedInUser?.id">
-                  <i class="fa-regular fa-user"></i>
-                  Olá, <span>{{ getFirstName(loggedInUser?.name) }}</span>
-              </div>
-              <div class="not-logged" v-else>
-                  Olá, faça seu <br><span @click="this.$router.push('/login')">login</span>
+          <div class="name-photo">
+            <div v-if="loggedInUser">
+                Olá, {{ getFirstName(loggedInUser.name) }}
+            </div>
+              <div class="user-icon">
+                  <img :src="userPhoto" alt="User icon" />
               </div>
           </div>
-        -->
 
           <div class="options-header" v-if="isDropDownVisible">
               <div class="option" @click="navigateToProfile()">
@@ -91,6 +85,7 @@ export default {
   mounted() {
     // user photo is smth like uploads\\1713725475470.webp in api folder
     // need only //1713725475470.webp
+    console.log(this.loggedInUser)
     if (!this.loggedInUser?.photo) {
       this.userPhoto = userDefault
       return
@@ -123,6 +118,17 @@ export default {
 
   .login-container {
       align-self: center;
+     
+      .name-photo {
+          display: flex;
+          align-items: center;
+          position: relative;
+
+          div {
+              font-size: 16px;
+              margin-right: 10px;
+          }
+      }
 
       .user-icon {
           width: 40px;
