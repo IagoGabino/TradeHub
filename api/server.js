@@ -1,4 +1,5 @@
 const app = require('./config/express');
+require('dotenv').config();
 
 PORT = process.env.PORT;
 app.listen(PORT, async () => {
