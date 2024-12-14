@@ -58,12 +58,13 @@ router.get('/:id/photo', async (req, res) => {
     }
 });
 
-router.get('/:id/books', async (req, res) => {
+router.get('/:id/products', async (req, res) => {
     try {
-        const books = await UsersService.getAllBooks(req.params.id);
-        res.send(books);
+        const products = await UsersService.getAllProducts(req.params.id);
+        res.send(products);
     } catch (error) {
-        res.status(400).send({ message: 'Erro do servidor ao recuperar livros!' });
+        console.log(error);
+        res.status(400).send({ message: 'Erro do servidor ao recuperar produtos!' });
     }
 });
 

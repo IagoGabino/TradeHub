@@ -63,11 +63,6 @@ class UserService {
                 available: true
             }
         });
-
-        if (products.length === 0) {
-            throw new NotFoundError('Este usuário não possui produtos.');
-        }
-
         return products;
     }
 

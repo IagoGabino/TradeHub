@@ -43,34 +43,26 @@ export default {
       return {
           logo,
           userDefault,
-          searchText: '',
           isDropDownVisible: false,
           userPhoto: ''
       }
   },
   methods: {
-      search() {
-          // this.$router.push({ name: 'search', query: { searchText: this.searchText } })
-      },
       showDropdown() {
-          // if (this.loggedInUser?.id)
-              this.isDropDownVisible = true
+        this.isDropDownVisible = true
       },
       hideDropdown() {
           this.isDropDownVisible = false
       },
       async logout() {
           this.$router.push('/')
-          // await logout()
-          // window.location.reload()
       },
       getFirstName(name) {
+          if (!name) return ''
           return name.split(' ')[0]
       },
       navigateToProfile() {
-          // console.log(this.loggedInUser)
-          // if (this.loggedInUser?.role === 'customer')
-              this.$router.push('/profile')
+        this.$router.push('/profile')
       },
       async logout () {
         await logout().catch(() => {

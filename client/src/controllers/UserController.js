@@ -23,4 +23,19 @@ const register = async (nome, email, celular, senha) => {
     return response
 }
 
-export { login, getUser, logout, register }
+const updateUser = async (id, userUpdates) => {
+    const response = await makeRequest('PUT', `/users/${id}`, userUpdates);
+    return response;
+}
+
+const updatePassword = async (id, atual, nova) => {
+    const response = await makeRequest('PUT', `/users/updateSenha`, { id, atual, nova });
+    return response;
+}
+
+const updatePhoto = async (id, formData) => {
+    const response = await makeRequest('PUT', `/users/${id}/photo`, formData, true)
+    return response
+}
+
+export { login, getUser, logout, register, updateUser, updatePassword, updatePhoto }

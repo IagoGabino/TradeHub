@@ -5,12 +5,10 @@ const NotFoundError = require('../utils/errors/NotFoundError');
 
 class ProductService {
     async create(body, fotoPath) {
-        const { title, descricao, ...otherDetails } = body;
+        const { ...prod } = body;
         const product = await Product.create({
-            title,
-            descricao,
             foto: fotoPath,
-            ...otherDetails
+            ...prod
         });
 
         return product;

@@ -65,7 +65,7 @@
 import ModalComponent from '@/components/modals/ModalComponent.vue'
 import { mapActions, mapGetters } from 'vuex'
 import logo from '@/assets/images/logo.png'
-import imgLogin from '@/assets/images/login_book.png'
+import imgLogin from '@/assets/images/login-business.png'
 import icon from '@/assets/images/icon.png'
 import { login, logout, register } from '@/controllers/UserController'
 import { vMaska } from 'maska/vue'

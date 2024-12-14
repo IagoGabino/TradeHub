@@ -4,41 +4,35 @@
       <MainHeader />
     </header>
            
-    <div class="wrapper" v-if="books.length > 0">
-      <div class="book-list">
-      <div class="list-item" v-for="book in filteredBooks" :key="book.id" @click="goToBook(book.id)">
-        <div class="book-container">
-          <img :src="book.image" class="book-image" alt="Cover image" />
+  <div class="search" v-if="products.length > 0">
+      <input type="text" placeholder="Buscar Produto" v-model="searchText" @input="searchProduct()"/>
+      <i class="fa fa-search icon" @click="searchProduct()"></i>
+  </div>
+    <div class="wrapper" v-if="products.length > 0">
+      <div class="product-list">
+      <div class="list-item" v-for="product in filteredProducts" :key="product.id" @click="goToProduct(product.id)">
+        <div class="product-container">
+          <img :src="product.image" class="product-image" alt="Cover image" />
 
-          <div class="books-info">
-            <h2 class="title">{{ book.titulo }}</h2>
-            <div class="authors">{{ book.autores }}</div>
-            <div class="school-info">
-            <div class="major">{{ book.curso }}</div>
-            <div class="subject">{{ book.disciplina}}</div>
-          
-            </div>
-              <div v-if="book.preco === 0" class="price">
-                <i class="fa-solid fa-hand-holding-heart"></i>
+          <div class="products-info">
+            <h2 class="title">{{ product.nome }}</h2>
+            <div class="description">{{ fixLength(product.descricao) }}</div>
+         
+                <div v-if="product.preco === 0" class="price">
+                  <i class="fa-solid fa-hand-holding-heart"></i>
                 </div>
-                <div v-else class="price">R$ {{ book.preco.toFixed(2) }}</div>
-
+                <div v-else class="price">R$ {{ product.preco.toFixed(2) }}</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="search" v-if="books.length > 0">
-        <input type="text" placeholder="Buscar Livro" v-model="searchText" @input="searchBook()"/>
-        <i class="fa fa-search icon" @click="searchBook()"></i>
-    </div>
-    </div>
-
-    <div class="not-found" v-if="filteredBooks.length === 0">
+    <div class="not-found" v-if="filteredProducts.length === 0">
       <h2>Nenhum produto encontrado :(</h2>
     </div>
 
-    <div class="not-found" v-else-if="books.length === 0">
+    <div class="not-found" v-else-if="products.length === 0">
       <h2>Nenhum produto disponível :(</h2>
     </div>
 </div>  
@@ -47,7 +41,7 @@
 <script>
 import { mapGetters, mapActions } from 'vuex'
 import MainHeader from '@/components/headers/MainHeader.vue';
-// import { getAllBooks } from '@/controllers/AllBooksController'
+import { getAllProducts } from '@/controllers/ProductController'
 
 
 export default {
@@ -57,56 +51,59 @@ export default {
   }, 
   data() {
     return {
-      books:[],
-      filteredBooks: []
+      products:[],
+      filteredProducts: []   
     }
   },
   computed: {
       ...mapGetters(['loggedInUser'])
   },
   methods: {
-    goToBook(id) {
-      this.$router.push(`/book/${id}`)
+    goToProduct(id) {
+      this.$router.push(`/product/${id}`)
     },
     normalizeString(string) {
-      return string.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      console.log(string)
+      return string
+      // return string.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     },
-    searchBook() {
+    searchProduct() {
       if (this.searchText === '') {
-        this.filteredBooks = this.books
+        this.filteredProducts = this.products
       } else {
-        this.filteredBooks = this.books.filter(book => {
-          return this.normalizeString(book.titulo).toLowerCase().includes(this.normalizeString(this.searchText).toLowerCase()) || 
-          this.normalizeString(book.autores).toLowerCase().includes(this.normalizeString(this.searchText).toLowerCase()) ||
-          this.normalizeString(book.curso).toLowerCase().includes(this.normalizeString(this.searchText).toLowerCase()) ||
-          this.normalizeString(book.disciplina).toLowerCase().includes(this.normalizeString(this.searchText).toLowerCase())
+        this.filteredProducts = this.products.filter(product => {
+          return this.normalizeString(product.nome).toLowerCase().includes(this.normalizeString(this.searchText).toLowerCase()) || 
+          this.normalizeString(product.descricao).toLowerCase().includes(this.normalizeString(this.searchText).toLowerCase()) 
         })
       }
+    },
+    fixLength: function (text) {
+        return text.length > 50 ? text.substr(0, 50) + '...' : text
     }
   },
   
   async mounted() {
     console.log(this.loggedInUser?.id)
 
-    // await getAllBooks().then((response) => {
+    await getAllProducts().then((response) => {
         
-    //     let books = response.data
+        let products = response.data
 
-    //     books.forEach(book => {
-    //       const photoLink = book.foto.replace(/\\/g, '/').replace('uploads', 'uploads/')
-    //       book.image = 'http://localhost:3000/' + photoLink
-    //     })
+        products.forEach(product => {
+          const photoLink = product.foto.replace(/\\/g, '/').replace('uploads', 'uploads/')
+          product.image = 'http://localhost:3000/' + photoLink
+        })
 
-    //     // filtra livros que nao sao do usuario logado
-    //     books = books.filter(book => book.idVendedor !== this.loggedInUser.id);
+        // filtra produtos que nao sao do usuario logado
+        products = products.filter(product => product.idVendedor !== this.loggedInUser.id);
 
-    //     this.books = books
-    //     this.filteredBooks = books
-    // }).catch((error) => {
-    //   console.log(error)
-    // })
+        this.products = products
+        this.filteredProducts = products
+    }).catch((error) => {
+      console.log(error)
+    })
 
-    console.log(this.books)
+    console.log(this.products)
   }
 }
 </script>
@@ -118,124 +115,98 @@ export default {
   }
 }
 
+.search {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 5px;
+    box-sizing: border-box;
+    border: 1px solid var(--secondaryColor);
+    padding: 10px 10px;
+    margin: 0 0 20px 40px;
+    position: relative;
+
+    //sizing
+    width: 300px;
+    height: 40px;
+    
+    input {
+        border: none;
+        outline: none;
+        background-color: transparent;
+        font-size: 18px;
+        font-family: Gellix;
+        width: 100%;
+        padding-right: 25px;
+    }
+
+    i {
+        font-size: 20px;
+        position: absolute;
+        right: 10px;
+        color: gray;
+    }
+}   
+
 .wrapper {
   display: flex;
-  justify-content: center;
-  gap: 20px;
-
-  .search {
-        display: flex;
-        align-items: center;
-        background-color: #fff;
-        border-radius: 5px;
-        box-sizing: border-box;
-        border: 1px solid var(--secondaryColor);
-        padding: 10px 10px;
-        position: relative;
-
-        //sizing
-        width: 300px;
-        height: 40px;
-        
-        input {
-            border: none;
-            outline: none;
-            background-color: transparent;
-            font-size: 18px;
-            font-family: Gellix;
-            width: 100%;
-            padding-right: 25px;
-        }
-
-        i {
-            font-size: 20px;
-            position: absolute;
-            right: 10px;
-            color: gray;
-        }
-    }   
-}
-
-
-.book-list {
-  display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 30px;
-  margin-bottom: 50px;
+  margin: 0 0 50px 40px;
 }
 
-.book-image{
-    padding: 20px;
-    width: 200px;
-    height: 270px;
+
+.product-list {
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.product-image{
+    padding: 5px;
+    width: 150px;
+    height: 100px;
     object-fit: contain;
-    // border: 1px solid rgba(0, 0, 0, 0.18);
 }
 .list-item {
   display: flex;
   align-items: center;
+  justify-content: center;
   height: 270px;
-  min-width: 900px;
+  padding: 10px;
   border: 1px solid rgba(0, 0, 0, 0.18);
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
 }
 
-.book-container {
-  display: flex;
-  flex-direction: row;
-  grid-template-columns: 200px 1fr;
-  height: 270px;
-  gap: 20px;
-  align-items: center;
-//   border: 1px solid rgba(0, 0, 0, 0.18);
-
-}
-
-.books-info {
+.product-container {
   display: flex;
   flex-direction: column;
-  align-items: left;
-  text-align: left;
-//   border: 1px solid rgba(0, 0, 0, 0.18);
-  margin-top:  15px;
-  margin-bottom: 15px;
-  padding: 10px;
+  height: 90%;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.products-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  text-align: center;
 }
 
 .title {
-  font-size: 27px;
+  font-size: 16px;
   font-weight: 600;
   font-family: Gellix;
-}
-
-.authors{
-    font-size: 22px;
-    color: var(--primaryColor);
-    margin-bottom: 30px;
-}
-
-.school-info {
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  margin-bottom: 37px;
-}
-
-
-.major,.subject{
-
-    border-radius: 15px;
-    padding: 3px;
-    padding-right: 20px;
-    padding-left: 20px;
-    font-weight: 200px;
-    background-color: #F4F4F4;
-    font-size: 19px;
+  margin-top: 0;
 }
 
 .price {
-  font-size: 25px;
+  font-size: 18px;
   color: var(--primaryColor);
+  font-weight: 600;
   margin-top: 10px;
 }
 
