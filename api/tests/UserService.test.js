@@ -1,7 +1,6 @@
 const UserService = require('../services/userService');
 const User = require('../models/User');
 const Product = require('../models/Product');
-const encryptPassword = require('../utils/encryptPassword');
 const bcrypt = require('bcrypt');
 const PermissionError = require('../utils/errors/PermissionError');
 const NotFoundError = require('../utils/errors/NotFoundError');
@@ -19,13 +18,13 @@ describe('UserService', () => {
 
     test('update: deve lançar NotFoundError se o usuário não existir', async () => {
         User.findByPk.mockResolvedValue(null);
-    
+
         await expect(UserService.update(999, { name: 'Novo Nome' }))
             .rejects
             .toThrow(NotFoundError);
         expect(User.findByPk).toHaveBeenCalledWith(999);
     });
-    
+
 
     test('updatePassword: deve lançar PermissionError se a senha atual não corresponde', async () => {
         const mockUser = { id: 1, senha: 'existingEncryptedPassword', save: jest.fn() };
