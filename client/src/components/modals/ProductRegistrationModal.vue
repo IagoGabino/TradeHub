@@ -10,7 +10,7 @@
                   <input type="text" placeholder="Título" required ref="name" >
 
                   <label for="author">Preço <span>*</span></label>
-                  <input type="text" placeholder="Preço" required ref="price"> 
+                  <input type="text" placeholder="Preço" required ref="price" @input="formatPrice" >
             </div>
           
               <div class="image-input">
@@ -94,13 +94,29 @@ export default {
             this.imgFile = file
         }
     },
+    formatPrice(event) {
+    let value = this.$refs.price.value;
+    
+    // Remove any non-digit characters (except for the decimal point).
+    value = value.replace(/\D/g, "");
+
+    // Format as currency
+    if (value) {
+        value = (parseInt(value) / 100).toLocaleString("pt-BR", { 
+            style: "currency", 
+            currency: "BRL" 
+        });
+    }
+    
+    // Update the input field
+    this.$refs.price.value = value;
+},
     async handleSave() {
         this.loading = true
         const name = this.$refs.name.value
         const description = this.$refs.description.value
-        const price = this.$refs.price.value
+        let price = this.$refs.price.value
         const idVendedor = this.loggedInUser.id
-        console.log('idVendedor', idVendedor)
 
         if (!name || !price || !description) {
             this.$toast.open({
@@ -112,6 +128,10 @@ export default {
             this.loading = false
             return
         }
+
+        // volta o preco para o formato de float
+        const sanitizedPrice = price.replace(/[^\d,]/g, '').replace(',', '.');
+        price = parseFloat(sanitizedPrice) ;
 
         const formData = new FormData()
         formData.append('nome', name)
@@ -315,6 +335,7 @@ export default {
             font-weight: 500;
             color: #232323;
             margin-bottom: 20px;
+            font-family: 'Gellix', sans-serif;
         }
 
         select {

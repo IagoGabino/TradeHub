@@ -277,6 +277,7 @@ export default {
                 width: 300px;
                 height: 250px;
                 object-fit: contain;
+                border-radius: 35px;  
             }
 
             .produto-anunciante{

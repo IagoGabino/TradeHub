@@ -55,6 +55,7 @@ export default {
   },
   methods: {
     formatValue(value) {
+        if (!value) return 'R$ 0,00'
         return value.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })
     },
     fixLength: function (text) {
