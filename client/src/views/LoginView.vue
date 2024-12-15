@@ -1,6 +1,6 @@
 <template>
   <div class="login-view">
-      <img class="logo" alt="LibreX logo" :src="logo" @click="this.$router.push('/')">
+      <img class="logo" alt="TradeHub logo" :src="logo" @click="this.$router.push('/')">
 
       <div class="login">
           <div class="form" @keyup.enter="login()">
@@ -32,7 +32,7 @@
 
       <ModalComponent :modalOpen="registerModalOpen" @closeModal="registerModalOpen = false">
           <div class="register">
-              <img class="logo" alt="LibreX icon" :src="icon">
+              <img class="logo" alt="TradeHub icon" :src="icon">
               <h3> Faça seu cadastro </h3>
 
               <div class="register-content">

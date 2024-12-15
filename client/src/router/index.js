@@ -47,7 +47,7 @@ const router = createRouter({
 
 router.afterEach((to) => {
   nextTick(() => {
-    document.title = to.meta.title || "LibreX";
+    document.title = to.meta.title || "TradeHub";
   });
 });
 

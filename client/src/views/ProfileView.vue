@@ -1,7 +1,7 @@
 <template>
   <div class="profile-view">
     <header>
-      <img class="logo" alt="LibreX logo" :src="icon" @click="this.$router.push('/')">
+      <img class="logo" alt="TradeHub logo" :src="icon" @click="this.$router.push('/')">
     </header>
     
     <div class="user-info">
