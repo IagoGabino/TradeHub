@@ -53,20 +53,15 @@ jobs:
           cd api
           npm test
 
-      - name: Build Client
-        run: |
-          cd client
-          npm run build
-
       - name: Start Client and wait
         run: |
           cd client
-          nohup npm run serve -- --port 3000 &
-          npx wait-on http://localhost:3000 --timeout 60000
+          nohup npm run serve -- --port 8080 &
+          npx wait-on http://localhost:8080 --timeout 60000
 
       - name: Run Cypress tests
         run: |
           cd client
           npx cypress run
         env:
-          CYPRESS_BASE_URL: 'http://localhost:3000'
+          CYPRESS_BASE_URL: 'http://localhost:8080'
