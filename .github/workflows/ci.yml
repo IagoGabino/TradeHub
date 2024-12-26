@@ -8,7 +8,11 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [18]
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -40,9 +44,8 @@ jobs:
         env:
           CI: true
 
-      - name: Wait for Client to be up
-        run: |
-          npx wait-on http://localhost:8080 --timeout 60000
+      - name: Wait for Client to be ready
+        run: sleep 15
 
       - name: Run Cypress tests
         run: |
