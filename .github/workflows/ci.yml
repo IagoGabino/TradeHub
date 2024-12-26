@@ -58,15 +58,10 @@ jobs:
           cd client
           npm run build
 
-      - name: Start Client
+      - name: Start Client and wait
         run: |
           cd client
-          npm run start &
-        env:
-          CI: true
-
-      - name: Wait for Client to be up
-        run: |
+          nohup npm run start &
           npx wait-on http://localhost:3000 --timeout 60000
 
       - name: Run Cypress tests
