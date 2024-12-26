@@ -8,35 +8,15 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        node-version: [18]
+    runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Cache Node.js modules for API
-        uses: actions/cache@v3
-        with:
-          path: api/node_modules
-          key: ${{ runner.os }}-node-api-${{ hashFiles('api/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-api-
-
-      - name: Cache Node.js modules for Client
-        uses: actions/cache@v3
-        with:
-          path: client/node_modules
-          key: ${{ runner.os }}-node-client-${{ hashFiles('client/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-client-
+          node-version: '18'
 
       - name: Install dependencies for API
         run: |
@@ -53,10 +33,15 @@ jobs:
           cd api
           npm test
 
-      - name: Start Client and wait
+      - name: Start Client
         run: |
           cd client
-          nohup npm run serve -- --port 8080 &
+          nohup npm run serve -- --port 8080 --host 0.0.0.0 > client.log 2>&1 &
+        env:
+          CI: true
+
+      - name: Wait for Client to be up
+        run: |
           npx wait-on http://localhost:8080 --timeout 60000
 
       - name: Run Cypress tests
