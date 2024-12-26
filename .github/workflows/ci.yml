@@ -61,7 +61,7 @@ jobs:
       - name: Start Client and wait
         run: |
           cd client
-          nohup npm run start &
+          nohup npm run serve -- --port 3000 &
           npx wait-on http://localhost:3000 --timeout 60000
 
       - name: Run Cypress tests
