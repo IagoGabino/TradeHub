@@ -5,6 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "test:cypress": "start-server-and-test serve http://localhost:8080 cypress:run",
     "cypress:open": "cypress open"
   },
   "dependencies": {
@@ -24,6 +25,7 @@
     "@vue/cli-service": "~5.0.0",
     "cypress": "^13.17.0",
     "less": "^4.2.1",
-    "less-loader": "^8.1.1"
+    "less-loader": "^8.1.1",
+    "start-server-and-test": "^2.0.9"
   }
 }
