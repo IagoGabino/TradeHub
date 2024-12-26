@@ -37,9 +37,32 @@ jobs:
           cd api
           npm test
 
+      - name: Start Client (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          nohup npm run serve -- --port 8080 --host 0.0.0.0 > client.log 2>&1 &
+        env:
+          CI: true
+
+      - name: Start Client (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run", "serve", "--", "--port", "8080", "--host", "0.0.0.0"
+        env:
+          CI: true
+
+      - name: Wait for Client to be ready
+        run: |
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            Start-Sleep -Seconds 15
+          else
+            sleep 15
+          fi
+
       - name: Run Cypress tests
         run: |
           cd client
-          npm run test:cypress
+          npx cypress run
         env:
           CYPRESS_BASE_URL: 'http://localhost:8080'
