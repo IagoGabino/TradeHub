@@ -37,27 +37,15 @@ jobs:
           cd api
           npm test
 
-      - name: Start Client on Unix
-        if: runner.os != 'Windows'
+      - name: Start Client
         run: |
           cd client
           nohup npm run serve -- --port 8080 --host 0.0.0.0 > client.log 2>&1 &
-        shell: bash
-        env:
-          CI: true
-
-      - name: Start Client on Windows
-        if: runner.os == 'Windows'
-        run: |
-          cd client
-          Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run", "serve", "--", "--port", "8080"
-        shell: pwsh
         env:
           CI: true
 
       - name: Wait for Client to be ready
-        run: |
-          npx wait-on http://localhost:8080 --timeout 60000
+        run: sleep 15
 
       - name: Run Cypress tests
         run: |
