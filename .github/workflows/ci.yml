@@ -61,15 +61,13 @@ jobs:
       - name: Start Client
         run: |
           cd client
-          nohup npm run start &
+          npm run start &
         env:
           CI: true
 
       - name: Wait for Client to be up
-        uses: jakejarvis/wait-action@v0.1.2
-        with:
-          url: 'http://localhost:3000'
-          timeout: 60
+        run: |
+          npx wait-on http://localhost:3000 --timeout 60000
 
       - name: Run Cypress tests
         run: |
