@@ -47,7 +47,7 @@ jobs:
         shell: bash
 
       - name: Aguardar o servidor do Frontend
-        uses: jakejarvis/wait-action@v0.1.2
+        uses: jakejarvis/wait-action@v0.1.3
         with:
           timeout: '30'
           url: 'http://localhost:8080'
