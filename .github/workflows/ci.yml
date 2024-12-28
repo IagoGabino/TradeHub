@@ -14,29 +14,35 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         node-version: [18]
     steps:
+      # Passo 1: Fazer o checkout do repositório
       - name: Check out repository
         uses: actions/checkout@v3
 
+      # Passo 2: Configurar o Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
+      # Passo 3: Instalar dependências para a API
       - name: Install dependencies for API
         run: |
           cd api
           npm install
 
+      # Passo 4: Instalar dependências para o Client
       - name: Install dependencies for Client
         run: |
           cd client
           npm install
 
+      # Passo 5: Rodar os testes da API
       - name: Run API tests
         run: |
           cd api
           npm test
 
+      # Passo 6: Iniciar o Client no Linux e macOS
       - name: Start Client on Linux and macOS
         if: runner.os != 'Windows'
         run: |
@@ -45,16 +51,47 @@ jobs:
         env:
           CI: true
 
+      # Passo 7: Iniciar o Client no Windows
       - name: Start Client on Windows
         if: runner.os == 'Windows'
         run: |
           cd client
           Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run", "serve", "--", "--port", "8080", "--host", "0.0.0.0"
+          Start-Sleep -Seconds 30
         shell: powershell
 
-      - name: Wait for Client to be ready
-        run: sleep 15
+      # Passo 8: Verificar se o servidor do Client está em execução (apenas no Windows)
+      - name: Check if Client Server is Running (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          $retry = 5
+          $delay = 6
+          $port = 8080
+          for ($i = 1; $i -le $retry; $i++) {
+            $connection = Test-NetConnection -ComputerName localhost -Port $port
+            if ($connection.TcpTestSucceeded) {
+              Write-Host "Servidor está em execução na porta $port."
+              exit 0
+            } else {
+              Write-Host "Tentativa $i: Servidor não está disponível. Aguardando $delay segundos..."
+              Start-Sleep -Seconds $delay
+            }
+          }
+          Write-Error "Servidor não está em execução após $retry tentativas."
+          exit 1
+        shell: powershell
 
+      # Passo 9: Esperar que o Client esteja pronto (ajustado para 30 segundos no Windows)
+      - name: Wait for Client to be ready
+        run: |
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            Start-Sleep -Seconds 30
+          else
+            sleep 15
+          fi
+        shell: bash
+
+      # Passo 10: Rodar os testes do Cypress
       - name: Run Cypress tests
         run: |
           cd client
