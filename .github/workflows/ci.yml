@@ -67,24 +67,3 @@ jobs:
         shell: powershell
         env:
           CYPRESS_BASE_URL: 'http://localhost:8080'
-
-      # Passos de Depuração (apenas se necessário)
-      - name: List Node Processes on Windows
-        if: runner.os == 'Windows'
-        run: |
-          Get-Process -Name node -ErrorAction SilentlyContinue
-        shell: powershell
-
-      - name: List Client Directory on Windows
-        if: runner.os == 'Windows'
-        run: |
-          cd client
-          Get-ChildItem -Recurse
-        shell: powershell
-
-      - name: Check Node and NPM Versions on Windows
-        if: runner.os == 'Windows'
-        run: |
-          node -v
-          npm -v
-        shell: powershell
