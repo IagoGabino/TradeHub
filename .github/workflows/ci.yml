@@ -49,11 +49,14 @@ jobs:
         run: |
           echo "Starting API and Client on Unix-like OS"
 
-          # Definir a variável de ambiente PORT para a API
+          # Definir as variáveis de ambiente necessárias
           export PORT=3000
-
-          # Definir a variável de ambiente para a API no Client
           export VUE_APP_API_URL=http://localhost:3000
+          export JWT_SECRET="T+v/RO7kQ77WAhmeFKTaRnsdP5GAF6LBLN2rtSm7Mkklibrex"
+          # Adicione outras variáveis de ambiente necessárias aqui, se houver
+          # export DB_HOST=...
+          # export DB_USER=...
+          # export DB_PASSWORD=...
 
           # Iniciar a API em segundo plano
           cd api
@@ -95,6 +98,7 @@ jobs:
           CYPRESS_BASE_URL: 'http://localhost:8080'
           PORT: 3000  # Definindo a porta para a API
           VUE_APP_API_URL: 'http://localhost:3000'  # Variável de ambiente para o Client
+          JWT_SECRET: "T+v/RO7kQ77WAhmeFKTaRnsdP5GAF6LBLN2rtSm7Mkklibrex"  # Variável de ambiente para a API
 
       # Passo único para Windows: Iniciar API, Client e executar testes
       - name: Start API, Client and Run Tests on Windows
@@ -102,11 +106,14 @@ jobs:
         run: |
           Write-Output "Starting API and Client on Windows"
 
-          # Definir a variável de ambiente PORT para a API
+          # Definir as variáveis de ambiente necessárias
           $env:PORT = "3000"
-
-          # Definir a variável de ambiente para a API no Client
           $env:VUE_APP_API_URL = "http://localhost:3000"
+          $env:JWT_SECRET = "T+v/RO7kQ77WAhmeFKTaRnsdP5GAF6LBLN2rtSm7Mkklibrex"
+          # Adicione outras variáveis de ambiente necessárias aqui, se houver
+          # $env:DB_HOST = "..."
+          # $env:DB_USER = "..."
+          # $env:DB_PASSWORD = "..."
 
           # Iniciar a API em segundo plano
           Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "start" -WorkingDirectory "api" -RedirectStandardOutput "api.log" -RedirectStandardError "api.log" -PassThru | Out-Null
@@ -149,6 +156,7 @@ jobs:
           CYPRESS_BASE_URL: 'http://localhost:8080'
           PORT: 3000  # Definindo a porta para a API
           VUE_APP_API_URL: 'http://localhost:3000'  # Variável de ambiente para o Client
+          JWT_SECRET: "T+v/RO7kQ77WAhmeFKTaRnsdP5GAF6LBLN2rtSm7Mkklibrex"  # Variável de ambiente para a API
 
       # Passo para exibir logs em caso de falha (Linux/macOS)
       - name: Exibir Logs em Caso de Falha (Unix-like)
