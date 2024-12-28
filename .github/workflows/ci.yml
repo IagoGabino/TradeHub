@@ -68,7 +68,7 @@ jobs:
           echo "Client started with PID $CLIENT_PID"
 
           # Esperar um pouco para permitir que os serviços iniciem
-          sleep 10
+          sleep 15
 
           # Verificar se a API está funcionando
           if curl -s http://localhost:3000 > /dev/null; then
@@ -87,7 +87,6 @@ jobs:
           fi
 
           # Executar os testes do Cypress
-          # Já estamos no diretório 'client', então não é necessário 'cd client' novamente
           npx cypress run
         shell: bash
         env:
@@ -119,7 +118,7 @@ jobs:
           Write-Output "Client started"
 
           # Esperar um pouco para permitir que os serviços iniciem
-          Start-Sleep -Seconds 10
+          Start-Sleep -Seconds 15  # Aumentar o tempo de espera
 
           # Verificar se a API está funcionando
           try {
@@ -141,8 +140,10 @@ jobs:
             npx wait-on --timeout 120000 http://localhost:8080
           }
 
+          # Navegar para o diretório 'client'
+          Set-Location -Path "client"
+
           # Executar os testes do Cypress
-          # Já estamos no diretório 'client', então não é necessário 'cd client' novamente
           npx cypress run
         shell: powershell
         env:
