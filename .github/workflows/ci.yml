@@ -14,69 +14,63 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         node-version: [18]
     steps:
-      # 1. Checkout do repositório
       - name: Check out repository
         uses: actions/checkout@v3
 
-      # 2. Configurar Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      # 3. Instalar dependências da API
       - name: Install dependencies for API
         run: |
           cd api
           npm install
 
-      # 4. Instalar dependências do Client
       - name: Install dependencies for Client
         run: |
           cd client
           npm install
 
-      # 5. Iniciar a API em segundo plano
-      - name: Start API
-        run: |
-          cd api
-          nohup npm start > api.log 2>&1 &
-          # Aguardar até que a API esteja disponível na porta 3000
-          npx wait-on http://localhost:3000
-        env:
-          PORT: 3000
-
-      # 6. Executar testes da API (se necessário)
       - name: Run API tests
         run: |
           cd api
           npm test
 
-      # 7. Iniciar o Client e executar os testes do Cypress em Linux/macOS
-      - name: Start Client and Run Tests on Linux/macOS
+      # Passos para Linux e macOS
+      - name: Start API, Client and Run Tests on Linux/macOS
         if: runner.os != 'Windows'
         run: |
-          cd client
+          # Iniciar a API em segundo plano
+          cd api
+          nohup npm start > api.log 2>&1 &
+          
+          # Iniciar o Client em segundo plano
+          cd ../client
           nohup npm run serve -- --port 8080 --host 0.0.0.0 > client.log 2>&1 &
-          # Aguardar até que o Client esteja disponível na porta 8080
-          npx wait-on http://localhost:8080
+          
+          # Esperar até que a API e o Client estejam prontos
+          npx wait-on --timeout 60000 http://localhost:3000 http://localhost:8080
+          
           # Executar os testes do Cypress
           npx cypress run
         env:
           CI: true
           CYPRESS_BASE_URL: 'http://localhost:8080'
 
-      # 8. Iniciar o Client e executar os testes do Cypress no Windows
-      - name: Start Client and Run Tests on Windows
+      # Passos para Windows
+      - name: Start API, Client and Run Tests on Windows
         if: runner.os == 'Windows'
         run: |
-          cd client
-          # Iniciar o servidor em um processo separado
-          Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run serve -- --port 8080 --host 0.0.0.0" -PassThru | Out-Null
-          # Aguardar alguns segundos para garantir que o servidor inicie
-          Start-Sleep -Seconds 10
-          # Aguardar até que o Client esteja disponível na porta 8080
-          npx wait-on --verbose --timeout 60000 http://localhost:8080
+          # Iniciar a API em segundo plano
+          Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "start" -WorkingDirectory "api" -PassThru | Out-Null
+          
+          # Iniciar o Client em segundo plano
+          Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run serve -- --port 8080 --host 0.0.0.0" -WorkingDirectory "client" -PassThru | Out-Null
+          
+          # Esperar até que a API e o Client estejam prontos
+          npx wait-on --verbose --timeout 60000 http://localhost:3000 http://localhost:8080
+          
           # Executar os testes do Cypress
           npx cypress run
         shell: powershell
