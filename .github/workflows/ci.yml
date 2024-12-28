@@ -49,7 +49,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           cd client
-          Start-Process -NoNewWindow -FilePath "npm.cmd" -ArgumentList "run", "serve", "--", "--port", "8080", "--host", "0.0.0.0" -RedirectStandardOutput "client-windows.log" -RedirectStandardError "client-windows-error.log"
+          Start-Process -NoNewWindow -FilePath "npm.cmd" -ArgumentList "run", "serve", "--", "--port", "8080", "--host", "localhost" -RedirectStandardOutput "client-windows.log" -RedirectStandardError "client-windows-error.log"
           Start-Sleep -Seconds 60
         shell: powershell
 
