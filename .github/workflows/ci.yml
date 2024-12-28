@@ -49,11 +49,12 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           cd client
-          Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run serve -- --port 8080 --host 0.0.0.0" 
-          # Aguarde um pouco para garantir que o processo iniciou
-          Start-Sleep -Seconds 5
-          # Use npx para executar wait-on
-          npx wait-on http://localhost:8080
+          # Iniciar o servidor em um novo processo desanexado
+          Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run serve -- --port 8080 --host 0.0.0.0" -PassThru | Out-Null
+          # Esperar um pouco para garantir que o servidor inicie
+          Start-Sleep -Seconds 10
+          # Usar wait-on com opções verbosas e timeout
+          npx wait-on --verbose --timeout 60000 http://127.0.0.1:8080
         shell: powershell
 
       - name: List Node Processes on Windows
@@ -98,7 +99,7 @@ jobs:
           $delay = 12
           $port = 8080
           for ($i = 1; $i -le $retry; $i++) {
-            $connection = Test-NetConnection -ComputerName localhost -Port $port
+            $connection = Test-NetConnection -ComputerName 127.0.0.1 -Port $port
             if ($connection.TcpTestSucceeded) {
               Write-Host "Servidor está em execução na porta $port."
               exit 0
