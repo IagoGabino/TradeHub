@@ -47,20 +47,41 @@ jobs:
       - name: Start API, Client and Run Tests on Linux/macOS
         if: runner.os != 'Windows'
         run: |
+          echo "Starting API and Client on Unix-like OS"
+
           # Iniciar a API em segundo plano
           cd api
           nohup npm start > ../api.log 2>&1 &
-          echo "API iniciada com PID $!"
+          API_PID=$!
+          echo "API started with PID $API_PID"
 
           # Iniciar o Client em segundo plano
           cd ../client
           nohup npm run serve -- --port 8080 --host 0.0.0.0 > ../client.log 2>&1 &
-          echo "Client iniciado com PID $!"
+          CLIENT_PID=$!
+          echo "Client started with PID $CLIENT_PID"
 
-          # Esperar até que a API e o Client estejam prontos
-          npx wait-on --timeout 120000 http://localhost:3000 http://localhost:8080
+          # Esperar um pouco para permitir que os serviços iniciem
+          sleep 10
+
+          # Verificar se a API está funcionando
+          if curl -s http://localhost:3000 > /dev/null; then
+            echo "API is up"
+          else
+            echo "API is not up yet, waiting..."
+            npx wait-on --timeout 120000 http://localhost:3000
+          fi
+
+          # Verificar se o Client está funcionando
+          if curl -s http://localhost:8080 > /dev/null; then
+            echo "Client is up"
+          else
+            echo "Client is not up yet, waiting..."
+            npx wait-on --timeout 120000 http://localhost:8080
+          fi
 
           # Executar os testes do Cypress
+          cd client
           npx cypress run
         shell: bash
         env:
@@ -71,25 +92,48 @@ jobs:
       - name: Start API, Client and Run Tests on Windows
         if: runner.os == 'Windows'
         run: |
+          Write-Output "Starting API and Client on Windows"
+
           # Iniciar a API em segundo plano
           Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "start" -WorkingDirectory "api" -RedirectStandardOutput "api.log" -RedirectStandardError "api.log" -PassThru | Out-Null
-          Write-Output "API iniciada"
+          Write-Output "API started"
 
           # Iniciar o Client em segundo plano
           Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run serve -- --port 8080 --host 0.0.0.0" -WorkingDirectory "client" -RedirectStandardOutput "client.log" -RedirectStandardError "client.log" -PassThru | Out-Null
-          Write-Output "Client iniciado"
+          Write-Output "Client started"
 
-          # Esperar até que a API e o Client estejam prontos
-          npx wait-on --verbose --timeout 120000 http://localhost:3000 http://localhost:8080
+          # Esperar um pouco para permitir que os serviços iniciem
+          Start-Sleep -Seconds 10
+
+          # Verificar se a API está funcionando
+          try {
+            $apiResponse = Invoke-WebRequest -Uri http://localhost:3000 -UseBasicParsing -ErrorAction Stop
+            Write-Output "API is up"
+          }
+          catch {
+            Write-Output "API is not up yet, waiting..."
+            npx wait-on --timeout 120000 http://localhost:3000
+          }
+
+          # Verificar se o Client está funcionando
+          try {
+            $clientResponse = Invoke-WebRequest -Uri http://localhost:8080 -UseBasicParsing -ErrorAction Stop
+            Write-Output "Client is up"
+          }
+          catch {
+            Write-Output "Client is not up yet, waiting..."
+            npx wait-on --timeout 120000 http://localhost:8080
+          }
 
           # Executar os testes do Cypress
+          cd client
           npx cypress run
         shell: powershell
         env:
           CI: true
           CYPRESS_BASE_URL: 'http://localhost:8080'
 
-      # Passo para exibir logs em caso de falha (Linux/macOS)
+      # Passos para Exibir Logs em Caso de Falha (Linux/macOS)
       - name: Exibir Logs em Caso de Falha (Unix-like)
         if: failure() && runner.os != 'Windows'
         run: |
@@ -99,7 +143,7 @@ jobs:
           cat client.log
         shell: bash
 
-      # Passo para exibir logs em caso de falha (Windows)
+      # Passos para Exibir Logs em Caso de Falha (Windows)
       - name: Exibir Logs em Caso de Falha (Windows)
         if: failure() && runner.os == 'Windows'
         run: |
