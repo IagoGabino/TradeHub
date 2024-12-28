@@ -14,35 +14,29 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         node-version: [18]
     steps:
-      # Passo 1: Fazer o checkout do repositório
       - name: Check out repository
         uses: actions/checkout@v3
 
-      # Passo 2: Configurar o Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      # Passo 3: Instalar dependências para a API
       - name: Install dependencies for API
         run: |
           cd api
           npm install
 
-      # Passo 4: Instalar dependências para o Client
       - name: Install dependencies for Client
         run: |
           cd client
           npm install
 
-      # Passo 5: Rodar os testes da API
       - name: Run API tests
         run: |
           cd api
           npm test
 
-      # Passo 6: Iniciar o Client no Linux e macOS
       - name: Start Client on Linux and macOS
         if: runner.os != 'Windows'
         run: |
@@ -51,7 +45,6 @@ jobs:
         env:
           CI: true
 
-      # Passo 7: Iniciar o Client no Windows com Captura de Logs
       - name: Start Client on Windows with Logs
         if: runner.os == 'Windows'
         run: |
@@ -60,14 +53,12 @@ jobs:
           Start-Sleep -Seconds 60
         shell: powershell
 
-      # Passo 7.1: Verificar se o Processo do Cliente Está em Execução no Windows
       - name: Verify Client Process on Windows
         if: runner.os == 'Windows'
         run: |
           Get-Process | Where-Object { $_.ProcessName -like "*node*" }
         shell: powershell
 
-      # Passo 7.2: Exibir Logs do Cliente no Windows se o Processo Não Estiver em Execução
       - name: Show Client Logs on Windows if Server Fails
         if: runner.os == 'Windows' && failure()
         run: |
@@ -77,11 +68,24 @@ jobs:
           Get-Content client/client-windows-error.log
         shell: powershell
 
-      # Passo 8: Verificar se o servidor do Client está em execução (apenas no Windows)
+      - name: List Client Directory on Windows
+        if: runner.os == 'Windows'
+        run: |
+          cd client
+          Get-ChildItem -Recurse
+        shell: powershell
+
+      - name: Check Node and NPM Versions on Windows
+        if: runner.os == 'Windows'
+        run: |
+          node -v
+          npm -v
+        shell: powershell
+
       - name: Check if Client Server is Running (Windows)
         if: runner.os == 'Windows'
         run: |
-          $retry = 5
+          $retry = 20
           $delay = 12
           $port = 8080
           for ($i = 1; $i -le $retry; $i++) {
@@ -98,7 +102,6 @@ jobs:
           exit 1
         shell: powershell
 
-      # Passo 9: Esperar que o Client esteja pronto
       - name: Wait for Client to be ready
         run: |
           if [ "${{ runner.os }}" == "Windows" ]; then
@@ -108,7 +111,6 @@ jobs:
           fi
         shell: bash
 
-      # Passo 10: Rodar os testes do Cypress
       - name: Run Cypress tests
         run: |
           cd client
