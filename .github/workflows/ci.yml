@@ -1,4 +1,4 @@
-name: Executar Testes Backend e Frontend
+name: CI
 
 on:
   push:
@@ -11,50 +11,53 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        node-version: [18.x]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [18]
     steps:
-      - name: Checkout do repositório
+      - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Configurar Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '18'
 
-      - name: Instalar dependências do Backend
+      - name: Install dependencies for API
         run: |
           cd api
           npm install
 
-      - name: Executar testes do Backend
+      - name: Install dependencies for Client
+        run: |
+          cd client
+          npm install
+
+      - name: Run API tests
         run: |
           cd api
           npm test
 
-      - name: Instalar dependências do Frontend
-        run: |
-          cd client
-          npm install
-
-      - name: Iniciar servidor do Frontend (Linux/macOS)
+      - name: Start Client on Linux and macOS
         if: runner.os != 'Windows'
         run: |
           cd client
-          nohup npm run serve > serve.log 2>&1 &
-        shell: bash
+          nohup npm run serve -- --port 8080 --host 0.0.0.0 > client.log 2>&1 &
+        env:
+          CI: true
 
-      - name: Iniciar servidor do Frontend (Windows)
+      - name: Start Client on Windows
         if: runner.os == 'Windows'
         run: |
           cd client
-          Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run", "serve"
+          Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run", "serve", "--", "--port", "8080", "--host", "0.0.0.0"
         shell: powershell
 
-      - name: Aguardar o servidor do Frontend
-        run: npx wait-on --timeout 30000 http://localhost:8080
+      - name: Wait for Client to be ready
+        run: sleep 15
 
-      - name: Executar testes com Cypress
+      - name: Run Cypress tests
         run: |
           cd client
           npx cypress run
+        env:
+          CYPRESS_BASE_URL: 'http://localhost:8080'
