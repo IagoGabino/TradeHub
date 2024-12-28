@@ -1,4 +1,4 @@
-name: CI
+name: Executar Testes Backend e Frontend
 
 on:
   push:
@@ -11,58 +11,49 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         node-version: [18]
     steps:
-      - name: Check out repository
+      - name: Checkout do repositório
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
+      - name: Configurar Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: ${{ matrix.node-version }}
 
-      - name: Install dependencies for API
+      - name: Instalar dependências do Backend
         run: |
           cd api
           npm install
+        shell: bash
 
-      - name: Install dependencies for Client
-        run: |
-          cd client
-          npm install
-
-      - name: Run API tests
+      - name: Executar testes do Backend
         run: |
           cd api
           npm test
+        shell: bash
 
-      - name: Start Client (Unix)
-        if: runner.os != 'Windows'
+      - name: Instalar dependências do Frontend
         run: |
-          nohup npm run serve -- --port 8080 --host 0.0.0.0 > client.log 2>&1 &
-        env:
-          CI: true
+          cd client
+          npm install
+        shell: bash
 
-      - name: Start Client (Windows)
-        if: runner.os == 'Windows'
-        shell: powershell
+      - name: Iniciar servidor do Frontend
         run: |
-          Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run", "serve", "--", "--port", "8080", "--host", "0.0.0.0"
-        env:
-          CI: true
+          cd client
+          npm run serve &
+        shell: bash
 
-      - name: Wait for Client to be ready
-        run: |
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
-            Start-Sleep -Seconds 15
-          else
-            sleep 15
-          fi
+      - name: Aguardar o servidor do Frontend
+        uses: jakejarvis/wait-action@v0.1.2
+        with:
+          timeout: '30'
+          url: 'http://localhost:8080'
 
-      - name: Run Cypress tests
+      - name: Executar testes com Cypress
         run: |
           cd client
           npx cypress run
-        env:
-          CYPRESS_BASE_URL: 'http://localhost:8080'
+        shell: bash
