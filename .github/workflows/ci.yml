@@ -84,7 +84,7 @@ jobs:
           fi
 
           # Executar os testes do Cypress
-          cd client
+          # Já estamos no diretório 'client', então não é necessário 'cd client' novamente
           npx cypress run
         shell: bash
         env:
@@ -133,6 +133,7 @@ jobs:
           }
 
           # Executar os testes do Cypress
+          # Já estamos no diretório 'client', então não é necessário 'cd client' novamente
           cd client
           npx cypress run
         shell: powershell
