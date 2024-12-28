@@ -57,13 +57,13 @@ jobs:
 
           # Iniciar a API em segundo plano
           cd api
-          nohup npm start > ../api.log 2>&1 &
+          nohup npm start > ../api.log 2> ../api_error.log &
           API_PID=$!
           echo "API started with PID $API_PID"
 
           # Iniciar o Client em segundo plano
           cd ../client
-          nohup npm run serve -- --port 8080 --host 0.0.0.0 > ../client.log 2>&1 &
+          nohup npm run serve -- --port 8080 --host 0.0.0.0 > ../client.log 2> ../client_error.log &
           CLIENT_PID=$!
           echo "Client started with PID $CLIENT_PID"
 
@@ -111,11 +111,11 @@ jobs:
           $env:JWT_EXPIRATION = "1000000"
 
           # Iniciar a API em segundo plano
-          Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "start" -WorkingDirectory "api" -RedirectStandardOutput "api.log" -RedirectStandardError "api.log" -PassThru | Out-Null
+          Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "start" -WorkingDirectory "api" -RedirectStandardOutput "api.log" -RedirectStandardError "api_error.log" -PassThru | Out-Null
           Write-Output "API started"
 
           # Iniciar o Client em segundo plano
-          Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run serve -- --port 8080 --host 0.0.0.0" -WorkingDirectory "client" -RedirectStandardOutput "client.log" -RedirectStandardError "client.log" -PassThru | Out-Null
+          Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run serve -- --port 8080 --host 0.0.0.0" -WorkingDirectory "client" -RedirectStandardOutput "client.log" -RedirectStandardError "client_error.log" -PassThru | Out-Null
           Write-Output "Client started"
 
           # Esperar um pouco para permitir que os serviços iniciem
@@ -143,7 +143,6 @@ jobs:
 
           # Executar os testes do Cypress
           # Já estamos no diretório 'client', então não é necessário 'cd client' novamente
-          cd client
           npx cypress run
         shell: powershell
         env:
@@ -160,8 +159,12 @@ jobs:
         run: |
           echo "=== Logs da API ==="
           cat api.log
+          echo "=== Erros da API ==="
+          cat api_error.log
           echo "=== Logs do Client ==="
           cat client.log
+          echo "=== Erros do Client ==="
+          cat client_error.log
         shell: bash
 
       # Passo para exibir logs em caso de falha (Windows)
@@ -170,6 +173,10 @@ jobs:
         run: |
           Write-Output "=== Logs da API ==="
           Get-Content api.log
+          Write-Output "=== Erros da API ==="
+          Get-Content api_error.log
           Write-Output "=== Logs do Client ==="
           Get-Content client.log
+          Write-Output "=== Erros do Client ==="
+          Get-Content client_error.log
         shell: powershell
