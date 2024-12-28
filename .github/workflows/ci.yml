@@ -24,47 +24,25 @@ jobs:
         with:
           node-version: '18'
 
-      # Passo 3: Cache das Dependências da API
-      - name: Cache API node_modules
-        uses: actions/cache@v3
-        with:
-          path: api/node_modules
-          key: ${{ runner.os }}-api-node-modules-${{ hashFiles('api/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-api-node-modules-
-
-      # Passo 4: Instalar dependências para a API
+      # Passo 3: Instalar dependências para a API
       - name: Install dependencies for API
         run: |
           cd api
-          npm ci
-        env:
-          CI: true
+          npm install
 
-      # Passo 5: Cache das Dependências do Client
-      - name: Cache Client node_modules
-        uses: actions/cache@v3
-        with:
-          path: client/node_modules
-          key: ${{ runner.os }}-client-node-modules-${{ hashFiles('client/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-client-node-modules-
-
-      # Passo 6: Instalar dependências para o Client
+      # Passo 4: Instalar dependências para o Client
       - name: Install dependencies for Client
         run: |
           cd client
-          npm ci
-        env:
-          CI: true
+          npm install
 
-      # Passo 7: Rodar os testes da API
+      # Passo 5: Rodar os testes da API
       - name: Run API tests
         run: |
           cd api
           npm test
 
-      # Passo 8: Iniciar o Client no Linux e macOS
+      # Passo 6: Iniciar o Client no Linux e macOS
       - name: Start Client on Linux and macOS
         if: runner.os != 'Windows'
         run: |
@@ -73,7 +51,7 @@ jobs:
         env:
           CI: true
 
-      # Passo 9: Iniciar o Client no Windows
+      # Passo 7: Iniciar o Client no Windows
       - name: Start Client on Windows
         if: runner.os == 'Windows'
         run: |
@@ -82,7 +60,7 @@ jobs:
           Start-Sleep -Seconds 30
         shell: powershell
 
-      # Passo 10: Verificar se o servidor do Client está em execução (apenas no Windows)
+      # Passo 8: Verificar se o servidor do Client está em execução (apenas no Windows)
       - name: Check if Client Server is Running (Windows)
         if: runner.os == 'Windows'
         run: |
@@ -103,7 +81,7 @@ jobs:
           exit 1
         shell: powershell
 
-      # Passo 11: Esperar que o Client esteja pronto
+      # Passo 9: Esperar que o Client esteja pronto (ajustado para 30 segundos no Windows)
       - name: Wait for Client to be ready
         run: |
           if [ "${{ runner.os }}" == "Windows" ]; then
@@ -113,7 +91,7 @@ jobs:
           fi
         shell: bash
 
-      # Passo 12: Rodar os testes do Cypress
+      # Passo 10: Rodar os testes do Cypress
       - name: Run Cypress tests
         run: |
           cd client
