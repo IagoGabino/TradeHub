@@ -37,15 +37,22 @@ jobs:
           cd api
           npm test
 
-      - name: Start Client on Linux and macOS
+      # Passos para Linux e macOS
+      - name: Start Client and Run Tests on Linux/macOS
         if: runner.os != 'Windows'
         run: |
           cd client
           nohup npm run serve -- --port 8080 --host 0.0.0.0 > client.log 2>&1 &
+          # Espera até que o servidor esteja pronto
+          npx wait-on --timeout 60000 http://127.0.0.1:8080
+          # Executa os testes
+          npx cypress run
         env:
           CI: true
+          CYPRESS_BASE_URL: 'http://localhost:8080'
 
-      - name: Start Client on Windows with wait-on
+      # Passos para Windows
+      - name: Start Client and Run Tests on Windows
         if: runner.os == 'Windows'
         run: |
           cd client
@@ -55,8 +62,13 @@ jobs:
           Start-Sleep -Seconds 10
           # Usar wait-on com opções verbosas e timeout
           npx wait-on --verbose --timeout 60000 http://127.0.0.1:8080
+          # Executar os testes
+          npx cypress run
         shell: powershell
+        env:
+          CYPRESS_BASE_URL: 'http://localhost:8080'
 
+      # Passos de Depuração (apenas se necessário)
       - name: List Node Processes on Windows
         if: runner.os == 'Windows'
         run: |
@@ -91,39 +103,3 @@ jobs:
           node -v
           npm -v
         shell: powershell
-
-      - name: Check if Client Server is Running (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          $retry = 20
-          $delay = 12
-          $port = 8080
-          for ($i = 1; $i -le $retry; $i++) {
-            $connection = Test-NetConnection -ComputerName 127.0.0.1 -Port $port
-            if ($connection.TcpTestSucceeded) {
-              Write-Host "Servidor está em execução na porta $port."
-              exit 0
-            } else {
-              Write-Host "Tentativa ${i}: Servidor não está disponível. Aguardando $delay segundos..."
-              Start-Sleep -Seconds $delay
-            }
-          }
-          Write-Error "Servidor não está em execução após $retry tentativas."
-          exit 1
-        shell: powershell
-
-      - name: Wait for Client to be ready
-        run: |
-          if [ "${{ runner.os }}" == "Windows" ]; then
-            Start-Sleep -Seconds 30
-          else
-            sleep 15
-          fi
-        shell: bash
-
-      - name: Run Cypress tests
-        run: |
-          cd client
-          npx cypress run
-        env:
-          CYPRESS_BASE_URL: 'http://localhost:8080'
