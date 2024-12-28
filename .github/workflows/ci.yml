@@ -37,42 +37,42 @@ jobs:
           cd api
           npm test
 
-      # Passos para Linux e macOS
-      - name: Start API, Client and Run Tests on Linux/macOS
-        if: runner.os != 'Windows'
+      # Iniciar API, Client e Executar Testes
+      - name: Start API, Client and Run Tests
         run: |
-          # Iniciar a API em segundo plano
-          cd api
-          nohup npm start > api.log 2>&1 &
-          
-          # Iniciar o Client em segundo plano
-          cd ../client
-          nohup npm run serve -- --port 8080 --host 0.0.0.0 > client.log 2>&1 &
-          
-          # Esperar até que a API e o Client estejam prontos
-          npx wait-on --timeout 60000 http://localhost:3000 http://localhost:8080
-          
+          if [[ "$RUNNER_OS" != "Windows" ]]; then
+            echo "Executando em sistema Unix-like (Linux/macOS)"
+
+            # Iniciar a API em segundo plano
+            cd api
+            nohup npm start > ../api.log 2>&1 &
+            echo "API iniciada com PID $!"
+
+            # Iniciar o Client em segundo plano
+            cd ../client
+            nohup npm run serve -- --port 8080 --host 0.0.0.0 > ../client.log 2>&1 &
+            echo "Client iniciado com PID $!"
+
+            # Esperar até que a API e o Client estejam prontos
+            npx wait-on --timeout 120000 http://localhost:3000 http://localhost:8080
+          else
+            echo "Executando no Windows"
+
+            # Iniciar a API em segundo plano
+            Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "start" -WorkingDirectory "api" -RedirectStandardOutput "api.log" -RedirectStandardError "api.log" -PassThru | Out-Null
+            Write-Output "API iniciada"
+
+            # Iniciar o Client em segundo plano
+            Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run serve -- --port 8080 --host 0.0.0.0" -WorkingDirectory "client" -RedirectStandardOutput "client.log" -RedirectStandardError "client.log" -PassThru | Out-Null
+            Write-Output "Client iniciado"
+
+            # Esperar até que a API e o Client estejam prontos
+            npx wait-on --verbose --timeout 120000 http://localhost:3000 http://localhost:8080
+          fi
+
           # Executar os testes do Cypress
           npx cypress run
+        shell: ${{ matrix.os == 'Windows-latest' && 'powershell' || 'bash' }}
         env:
           CI: true
-          CYPRESS_BASE_URL: 'http://localhost:8080'
-
-      # Passos para Windows
-      - name: Start API, Client and Run Tests on Windows
-        if: runner.os == 'Windows'
-        run: |
-          # Iniciar a API em segundo plano
-          Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "start" -WorkingDirectory "api" -PassThru | Out-Null
-          
-          # Iniciar o Client em segundo plano
-          Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run serve -- --port 8080 --host 0.0.0.0" -WorkingDirectory "client" -PassThru | Out-Null
-          
-          # Esperar até que a API e o Client estejam prontos
-          npx wait-on --verbose --timeout 60000 http://localhost:3000 http://localhost:8080
-          
-          # Executar os testes do Cypress
-          npx cypress run
-        shell: powershell
-        env:
           CYPRESS_BASE_URL: 'http://localhost:8080'
