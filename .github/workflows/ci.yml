@@ -45,18 +45,15 @@ jobs:
         env:
           CI: true
 
-      - name: Install wait-on on Windows
-        if: runner.os == 'Windows'
-        run: |
-          npm install -g wait-on
-        shell: powershell
-
       - name: Start Client on Windows with wait-on
         if: runner.os == 'Windows'
         run: |
           cd client
-          Start-Job -ScriptBlock { npm run serve -- --port 8080 --host localhost } | Out-Null
-          wait-on http://localhost:8080
+          Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run serve -- --port 8080 --host 0.0.0.0" 
+          # Aguarde um pouco para garantir que o processo iniciou
+          Start-Sleep -Seconds 5
+          # Use npx para executar wait-on
+          npx wait-on http://localhost:8080
         shell: powershell
 
       - name: List Node Processes on Windows
