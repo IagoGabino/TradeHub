@@ -56,11 +56,11 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           cd client
-          Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run", "serve", "--", "--port", "8080", "--host", "localhost"
-          Start-Sleep -Seconds 60
+          Start-Process -NoNewWindow -FilePath "npm.cmd" -ArgumentList "run", "serve", "--", "--port", "8080", "--host", "0.0.0.0"
+          Start-Sleep -Seconds 30
         shell: powershell
 
-      # Passo 8: Verificar se o servidor do Client está em execução (Windows)
+      # Passo 8: Verificar se o servidor do Client está em execução (apenas no Windows)
       - name: Check if Client Server is Running (Windows)
         if: runner.os == 'Windows'
         run: |
@@ -81,35 +81,17 @@ jobs:
           exit 1
         shell: powershell
 
-      # Passo 9: Verificar os logs do Client no Windows (Passo Adicional)
-      - name: Check Client Logs (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          Get-Content -Path "client.log" -Tail 50
-        shell: powershell
-
-      # Passo 10: Listar processos do Client no Windows (Passo Adicional)
-      - name: List Client Processes (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          Get-Process | Where-Object { $_.Name -like "*node*" }
-        shell: powershell
-
-      # Passo 11: Instalar wait-on (Passo Adicional)
-      - name: Install wait-on
-        run: npm install -g wait-on
-
-      # Passo 12: Esperar que o Client esteja pronto
+      # Passo 9: Esperar que o Client esteja pronto
       - name: Wait for Client to be ready
         run: |
           if [ "${{ runner.os }}" == "Windows" ]; then
-            wait-on http://localhost:8080
+            Start-Sleep -Seconds 30
           else
             sleep 15
           fi
         shell: bash
 
-      # Passo 13: Rodar os testes do Cypress
+      # Passo 10: Rodar os testes do Cypress
       - name: Run Cypress tests
         run: |
           cd client
