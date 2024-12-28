@@ -32,74 +32,64 @@ jobs:
           cd client
           npm install
 
+      - name: Install wait-on and Cypress
+        run: |
+          cd client
+          npm install wait-on cypress --save-dev
+        # Garantir que wait-on e Cypress estejam instalados como dependências de desenvolvimento
+
       - name: Run API tests
         run: |
           cd api
           npm test
 
-      # Passos para Linux e macOS
-      - name: Start API on Linux/macOS
+      # Passo único para Linux/macOS: Iniciar API, Client e executar testes
+      - name: Start API, Client and Run Tests on Linux/macOS
         if: runner.os != 'Windows'
         run: |
+          # Iniciar a API em segundo plano
           cd api
           nohup npm start > ../api.log 2>&1 &
           echo "API iniciada com PID $!"
-        shell: bash
 
-      - name: Start Client on Linux/macOS
-        if: runner.os != 'Windows'
-        run: |
-          cd client
+          # Iniciar o Client em segundo plano
+          cd ../client
           nohup npm run serve -- --port 8080 --host 0.0.0.0 > ../client.log 2>&1 &
           echo "Client iniciado com PID $!"
-        shell: bash
 
-      - name: Wait for API and Client on Linux/macOS
-        if: runner.os != 'Windows'
-        run: |
+          # Esperar até que a API e o Client estejam prontos
           npx wait-on --timeout 120000 http://localhost:3000 http://localhost:8080
-        shell: bash
 
-      - name: Run Cypress Tests on Linux/macOS
-        if: runner.os != 'Windows'
-        run: |
+          # Executar os testes do Cypress
           npx cypress run
         shell: bash
         env:
           CI: true
           CYPRESS_BASE_URL: 'http://localhost:8080'
 
-      # Passos para Windows
-      - name: Start API on Windows
+      # Passo único para Windows: Iniciar API, Client e executar testes
+      - name: Start API, Client and Run Tests on Windows
         if: runner.os == 'Windows'
         run: |
+          # Iniciar a API em segundo plano
           Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "start" -WorkingDirectory "api" -RedirectStandardOutput "api.log" -RedirectStandardError "api.log" -PassThru | Out-Null
           Write-Output "API iniciada"
-        shell: powershell
 
-      - name: Start Client on Windows
-        if: runner.os == 'Windows'
-        run: |
+          # Iniciar o Client em segundo plano
           Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run serve -- --port 8080 --host 0.0.0.0" -WorkingDirectory "client" -RedirectStandardOutput "client.log" -RedirectStandardError "client.log" -PassThru | Out-Null
           Write-Output "Client iniciado"
-        shell: powershell
 
-      - name: Wait for API and Client on Windows
-        if: runner.os == 'Windows'
-        run: |
+          # Esperar até que a API e o Client estejam prontos
           npx wait-on --verbose --timeout 120000 http://localhost:3000 http://localhost:8080
-        shell: powershell
 
-      - name: Run Cypress Tests on Windows
-        if: runner.os == 'Windows'
-        run: |
+          # Executar os testes do Cypress
           npx cypress run
         shell: powershell
         env:
           CI: true
           CYPRESS_BASE_URL: 'http://localhost:8080'
 
-      # Passos para Exibir Logs em Caso de Falha (Linux/macOS)
+      # Passo para exibir logs em caso de falha (Linux/macOS)
       - name: Exibir Logs em Caso de Falha (Unix-like)
         if: failure() && runner.os != 'Windows'
         run: |
@@ -109,7 +99,7 @@ jobs:
           cat client.log
         shell: bash
 
-      # Passos para Exibir Logs em Caso de Falha (Windows)
+      # Passo para exibir logs em caso de falha (Windows)
       - name: Exibir Logs em Caso de Falha (Windows)
         if: failure() && runner.os == 'Windows'
         run: |
