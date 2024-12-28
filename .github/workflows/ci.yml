@@ -14,56 +14,102 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         node-version: [18]
     steps:
+      # 1. Checkout do Repositório
       - name: Check out repository
         uses: actions/checkout@v3
 
+      # 2. Configuração do Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
+      # 3. Instalação das Dependências da API
       - name: Install dependencies for API
         run: |
           cd api
           npm install
 
+      # 4. Instalação das Dependências do Cliente
       - name: Install dependencies for Client
         run: |
           cd client
           npm install
 
-      - name: Run API tests
+      # 5. Execução dos Testes Unitários da API
+      - name: Run API unit tests
         run: |
           cd api
           npm test
 
-      # Passos para Linux e macOS
-      - name: Start Client and Run Tests on Linux/macOS
+      # 6. Início dos Servidores e Execução dos Testes E2E
+      # 6.1. Para Sistemas Linux e macOS
+      - name: Start API Server on Linux/macOS
+        if: runner.os != 'Windows'
+        run: |
+          cd api
+          # Inicia o servidor da API em background
+          nohup npm run start -- --port 3000 --host 0.0.0.0 > api.log 2>&1 &
+          echo "API server started in background"
+          # Aguarda até que a API esteja pronta (supondo que /health esteja disponível)
+          npx wait-on --timeout 60000 http://localhost:3000/health || exit 1
+        env:
+          CI: true
+
+      - name: Start Client Server on Linux/macOS
         if: runner.os != 'Windows'
         run: |
           cd client
+          # Inicia o servidor do Cliente em background
           nohup npm run serve -- --port 8080 --host 0.0.0.0 > client.log 2>&1 &
-          # Espera até que o servidor esteja pronto
-          npx wait-on --timeout 60000 http://127.0.0.1:8080
-          # Executa os testes
+          echo "Client server started in background"
+          # Aguarda até que o Cliente esteja pronto
+          npx wait-on --timeout 60000 http://localhost:8080 || exit 1
+        env:
+          CI: true
+
+      - name: Run Cypress Tests on Linux/macOS
+        if: runner.os != 'Windows'
+        run: |
+          cd client
           npx cypress run
         env:
           CI: true
           CYPRESS_BASE_URL: 'http://localhost:8080'
 
-      # Passos para Windows
-      - name: Start Client and Run Tests on Windows
+      # 6.2. Para Sistemas Windows
+      - name: Start API Server on Windows
+        if: runner.os == 'Windows'
+        run: |
+          cd api
+          # Inicia o servidor da API em background usando PowerShell
+          Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run start -- --port 3000 --host 0.0.0.0" -PassThru | Out-Null
+          Write-Host "API server started in background"
+          # Aguarda até que a API esteja pronta (supondo que /health esteja disponível)
+          npx wait-on --verbose --timeout 60000 http://localhost:3000/health || exit 1
+        shell: powershell
+        env:
+          CI: true
+
+      - name: Start Client Server on Windows
         if: runner.os == 'Windows'
         run: |
           cd client
-          # Iniciar o servidor em um novo processo desanexado
+          # Inicia o servidor do Cliente em background usando PowerShell
           Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run serve -- --port 8080 --host 0.0.0.0" -PassThru | Out-Null
-          # Esperar um pouco para garantir que o servidor inicie
-          Start-Sleep -Seconds 10
-          # Usar wait-on com opções verbosas e timeout
-          npx wait-on --verbose --timeout 60000 http://127.0.0.1:8080
-          # Executar os testes
+          Write-Host "Client server started in background"
+          # Aguarda até que o Cliente esteja pronto
+          npx wait-on --verbose --timeout 60000 http://localhost:8080 || exit 1
+        shell: powershell
+        env:
+          CI: true
+
+      - name: Run Cypress Tests on Windows
+        if: runner.os == 'Windows'
+        run: |
+          cd client
           npx cypress run
         shell: powershell
         env:
+          CI: true
           CYPRESS_BASE_URL: 'http://localhost:8080'
