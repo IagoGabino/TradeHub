@@ -73,7 +73,7 @@ jobs:
               Write-Host "Servidor está em execução na porta $port."
               exit 0
             } else {
-              Write-Host "Tentativa $i: Servidor não está disponível. Aguardando $delay segundos..."
+              Write-Host "Tentativa ${i}: Servidor não está disponível. Aguardando $delay segundos..."
               Start-Sleep -Seconds $delay
             }
           }
