@@ -52,6 +52,9 @@ jobs:
           # Definir a variável de ambiente PORT para a API
           export PORT=3000
 
+          # Definir a variável de ambiente para a API no Client
+          export VUE_APP_API_URL=http://localhost:3000
+
           # Iniciar a API em segundo plano
           cd api
           nohup npm start > ../api.log 2>&1 &
@@ -91,6 +94,7 @@ jobs:
           CI: true
           CYPRESS_BASE_URL: 'http://localhost:8080'
           PORT: 3000  # Definindo a porta para a API
+          VUE_APP_API_URL: 'http://localhost:3000'  # Variável de ambiente para o Client
 
       # Passo único para Windows: Iniciar API, Client e executar testes
       - name: Start API, Client and Run Tests on Windows
@@ -100,6 +104,9 @@ jobs:
 
           # Definir a variável de ambiente PORT para a API
           $env:PORT = "3000"
+
+          # Definir a variável de ambiente para a API no Client
+          $env:VUE_APP_API_URL = "http://localhost:3000"
 
           # Iniciar a API em segundo plano
           Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "start" -WorkingDirectory "api" -RedirectStandardOutput "api.log" -RedirectStandardError "api.log" -PassThru | Out-Null
@@ -141,6 +148,7 @@ jobs:
           CI: true
           CYPRESS_BASE_URL: 'http://localhost:8080'
           PORT: 3000  # Definindo a porta para a API
+          VUE_APP_API_URL: 'http://localhost:3000'  # Variável de ambiente para o Client
 
       # Passo para exibir logs em caso de falha (Linux/macOS)
       - name: Exibir Logs em Caso de Falha (Unix-like)
