@@ -45,18 +45,30 @@ jobs:
         env:
           CI: true
 
-      - name: Start Client on Windows with Logs
+      - name: Install wait-on on Windows
+        if: runner.os == 'Windows'
+        run: |
+          npm install -g wait-on
+        shell: powershell
+
+      - name: Start Client on Windows with wait-on
         if: runner.os == 'Windows'
         run: |
           cd client
-          Start-Process -NoNewWindow -FilePath "npm.cmd" -ArgumentList "run", "serve", "--", "--port", "8080", "--host", "localhost" -RedirectStandardOutput "client-windows.log" -RedirectStandardError "client-windows-error.log"
-          Start-Sleep -Seconds 60
+          Start-Job -ScriptBlock { npm run serve -- --port 8080 --host localhost } | Out-Null
+          wait-on http://localhost:8080
         shell: powershell
 
-      - name: Verify Client Process on Windows
+      - name: List Node Processes on Windows
         if: runner.os == 'Windows'
         run: |
-          Get-Process | Where-Object { $_.ProcessName -like "*node*" }
+          Get-Process -Name node -ErrorAction SilentlyContinue
+        shell: powershell
+
+      - name: Check Listening Ports on Windows
+        if: runner.os == 'Windows'
+        run: |
+          Get-NetTCPConnection -LocalPort 8080 -State Listen
         shell: powershell
 
       - name: Show Client Logs on Windows if Server Fails
