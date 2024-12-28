@@ -37,13 +37,22 @@ jobs:
           cd client
           npm install
 
-      - name: Iniciar servidor do Frontend
+      - name: Iniciar servidor do Frontend (Linux/macOS)
+        if: runner.os != 'Windows'
         run: |
           cd client
-          npm run serve &
+          nohup npm run serve > serve.log 2>&1 &
+        shell: bash
+
+      - name: Iniciar servidor do Frontend (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cd client
+          Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run", "serve"
+        shell: powershell
 
       - name: Aguardar o servidor do Frontend
-        run: npx wait-on http://localhost:8080
+        run: npx wait-on --timeout 30000 http://localhost:8080
 
       - name: Executar testes com Cypress
         run: |
