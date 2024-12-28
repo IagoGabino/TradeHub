@@ -1,25 +1,42 @@
-describe('LoginView Component', () => {
-  // Antes de cada teste, visite a p·gina de login
+describe('Funcionalidade de Registro', () => {
+  const novoUsuario = {
+    nome: 'Usu√°rio de Teste Cypress',
+    email: `cypressuser${Date.now()}@example.com`,
+    celular: '(99) 99999-9999',
+    senha: 'Test@1234'
+  };
+
   beforeEach(() => {
-    cy.visit('/login') // Ajuste a rota conforme a sua aplicaÁ„o
-  })
+    cy.visit('/login');
+  });
 
-  it('deve exibir o bot„o de entrar', () => {
-    cy.get('#login button')
-      .should('be.visible')
-      .and('contain', 'Entrar')
-  })
+  it('Abre o modal de registro', () => {
+    cy.contains('Fa√ßa seu cadastro').click();
 
-  it('deve alternar o tipo do campo de senha ao clicar no Ìcone', () => {
-    // Verifica se o campo de senha est· inicialmente com o tipo 'password'
-    cy.get('#password').should('have.attr', 'type', 'password')
+    cy.get('.modal-container').should('be.visible');
+    cy.get('.register').within(() => {
+      cy.get('h3').should('contain', 'seu cadastro');
+      cy.get('input#nameReg').should('be.visible');
+      cy.get('input#emailReg').should('be.visible');
+      cy.get('input#cellphoneReg').should('be.visible');
+      cy.get('input#passwordReg').should('be.visible');
+      cy.get('button').should('contain', 'Cadastrar');
+    });
+  });
 
-    // Clica no Ìcone de olho para mostrar a senha
-    cy.get('.login .form .input .fa-eye').click()
-    cy.get('#password').should('have.attr', 'type', 'text')
+  it('Registra um novo usu√°rio com sucesso', () => {
+    cy.contains('Fa√ßa seu cadastro').click();
 
-    // Clica novamente para ocultar a senha
-    cy.get('.login .form .input .fa-eye').click()
-    cy.get('#password').should('have.attr', 'type', 'password')
-  })
-})
+    cy.get('input#nameReg').type(novoUsuario.nome);
+    cy.get('input#emailReg').type(novoUsuario.email);
+    cy.get('input#cellphoneReg').type(novoUsuario.celular);
+    cy.get('input#passwordReg').type(novoUsuario.senha);
+
+    cy.get('button').contains('Cadastrar').click();
+
+    cy.get('.modal-container').should('not.exist');
+
+    cy.url().should('eq', `${Cypress.config().baseUrl}/`);
+
+  });
+});
