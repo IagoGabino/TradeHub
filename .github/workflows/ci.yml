@@ -75,21 +75,6 @@ jobs:
           Get-Process -Name node -ErrorAction SilentlyContinue
         shell: powershell
 
-      - name: Check Listening Ports on Windows
-        if: runner.os == 'Windows'
-        run: |
-          Get-NetTCPConnection -LocalPort 8080 -State Listen
-        shell: powershell
-
-      - name: Show Client Logs on Windows if Server Fails
-        if: runner.os == 'Windows' && failure()
-        run: |
-          Write-Host "=== client-windows.log ==="
-          Get-Content client/client-windows.log
-          Write-Host "=== client-windows-error.log ==="
-          Get-Content client/client-windows-error.log
-        shell: powershell
-
       - name: List Client Directory on Windows
         if: runner.os == 'Windows'
         run: |
