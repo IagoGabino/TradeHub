@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        node-version: [18]
+        node-version: [18.x]
     steps:
       - name: Checkout do repositório
         uses: actions/checkout@v3
@@ -26,34 +26,26 @@ jobs:
         run: |
           cd api
           npm install
-        shell: bash
 
       - name: Executar testes do Backend
         run: |
           cd api
           npm test
-        shell: bash
 
       - name: Instalar dependências do Frontend
         run: |
           cd client
           npm install
-        shell: bash
 
       - name: Iniciar servidor do Frontend
         run: |
           cd client
           npm run serve &
-        shell: bash
 
       - name: Aguardar o servidor do Frontend
-        uses: jakejarvis/wait-action@v0.1.3
-        with:
-          timeout: '30'
-          url: 'http://localhost:8080'
+        run: npx wait-on http://localhost:8080
 
       - name: Executar testes com Cypress
         run: |
           cd client
           npx cypress run
-        shell: bash
