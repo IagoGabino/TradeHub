@@ -52,8 +52,8 @@ jobs:
           echo "Starting API and Client on Unix-like OS"
           export PORT=3000
           export VUE_APP_API_URL=http://localhost:3000
-          export JWT_SECRET="T+v/RO7kQ77WAhmeFKTaRnsdP5GAF6LBLN2rtSm7Mkklibrex"
-          export JWT_EXPIRATION=1000000
+          export JWT_SECRET="${{ secrets.JWT_SECRET }}"
+          export JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }}
           cd api
           nohup npm start > ../api.log 2> ../api_error.log &
           API_PID=$!
@@ -82,8 +82,8 @@ jobs:
           CYPRESS_BASE_URL: 'http://localhost:8080'
           PORT: 3000
           VUE_APP_API_URL: 'http://localhost:3000'
-          JWT_SECRET: "T+v/RO7kQ77WAhmeFKTaRnsdP5GAF6LBLN2rtSm7Mkklibrex"
-          JWT_EXPIRATION: 1000000
+          JWT_SECRET: "${{ secrets.JWT_SECRET }}"
+          JWT_EXPIRATION: ${{ secrets.JWT_EXPIRATION }}
 
       - name: Start API, Client and Run Tests on Windows
         if: runner.os == 'Windows'
@@ -91,8 +91,8 @@ jobs:
           Write-Output "Starting API and Client on Windows"
           $env:PORT = "3000"
           $env:VUE_APP_API_URL = "http://localhost:3000"
-          $env:JWT_SECRET = "T+v/RO7kQ77WAhmeFKTaRnsdP5GAF6LBLN2rtSm7Mkklibrex"
-          $env:JWT_EXPIRATION = "1000000"
+          $env:JWT_SECRET = "${{ secrets.JWT_SECRET }}"
+          $env:JWT_EXPIRATION = "${{ secrets.JWT_EXPIRATION }}"
           Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "start" -WorkingDirectory "api" -RedirectStandardOutput "api.log" -RedirectStandardError "api_error.log" -PassThru | Out-Null
           Write-Output "API started"
           Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run serve -- --port 8080 --host 0.0.0.0" -WorkingDirectory "client" -RedirectStandardOutput "client.log" -RedirectStandardError "client_error.log" -PassThru | Out-Null
@@ -122,5 +122,5 @@ jobs:
           CYPRESS_BASE_URL: 'http://localhost:8080'
           PORT: 3000
           VUE_APP_API_URL: 'http://localhost:3000'
-          JWT_SECRET: "T+v/RO7kQ77WAhmeFKTaRnsdP5GAF6LBLN2rtSm7Mkklibrex"
-          JWT_EXPIRATION: "1000000"
+          JWT_SECRET: "${{ secrets.JWT_SECRET }}"
+          JWT_EXPIRATION: "${{ secrets.JWT_EXPIRATION }}"
