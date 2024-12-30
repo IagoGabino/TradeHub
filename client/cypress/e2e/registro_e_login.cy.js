@@ -1,10 +1,9 @@
 describe('Usuário - Registro e Login', () => {
-  let randomEmail;
+  let email;
 
   before(() => {
-    // Gerar um email para cada execução
     const timestamp = Date.now();
-    randomEmail = `user${timestamp}@example.com`;
+    email = `user${timestamp}@example.com`;
   });
 
   it('Deve registrar um novo usuário com sucesso', () => {
@@ -15,7 +14,7 @@ describe('Usuário - Registro e Login', () => {
 
     // Preencher os campos de registro
     cy.get('input#nameReg').type('Teste Usuário');
-    cy.get('input#emailReg').type(randomEmail);
+    cy.get('input#emailReg').type(email);
     cy.get('input#cellphoneReg').type('(11) 91234-5678');
     cy.get('input#passwordReg').type('Senha123');
 
@@ -33,7 +32,7 @@ describe('Usuário - Registro e Login', () => {
     cy.visit('/login');
 
     // Preencher os campos de login
-    cy.get('input#email').type(randomEmail);
+    cy.get('input#email').type(email);
     cy.get('input#password').type('Senha123');
 
     // Enviar o formulário de login
