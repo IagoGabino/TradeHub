@@ -5,7 +5,7 @@
     </header>
            
   <div class="search" v-if="products.length > 0">
-      <input type="text" placeholder="Buscar Produto" v-model="searchText" @input="searchProduct()"/>
+      <input type="text" placeholder="Buscar Produto" v-model="searchText" @input="searchProduct()" id="search" />
       <i class="fa fa-search icon" @click="searchProduct()"></i>
   </div>
     <div class="wrapper" v-if="products.length > 0">
